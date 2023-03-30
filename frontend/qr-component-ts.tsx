@@ -1,10 +1,13 @@
 import React from 'react';
 import QRCode from "qrcode";
 import { hashUrlMaker, pathLengthCalculator } from './qrmap';
+import { Flex } from '@chakra-ui/react';
 
 export function QrcodeView({seedString}:{seedString:string}) {
   const [toDataURL, setToDataURL] = React.useState<string>();
   const [result, setResult] = React.useState<{from:number[], to:number[], len:number}>();
+  // const [toDataURL, setToDataURL] = React.useState();
+  // const [result, setResult] = React.useState();
 
   let urlString = "";
   // let urlString = `https://block-chain.kr/${seedString}`
@@ -30,10 +33,10 @@ export function QrcodeView({seedString}:{seedString:string}) {
   },[seedString])
   
   return (
-    <div>
+    <Flex direction={"column"}>
       <img src={toDataURL}/>
       <PathLength result={result}/>
-    </div>
+    </Flex>
   )
 }
 

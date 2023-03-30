@@ -1,3 +1,7 @@
+DEFINE_NEAR_METHOD(createNickname)
 DEFINE_NEAR_METHOD(createSubAcnt)
+DEFINE_NEAR_METHOD(getNickbyAddr)
 DEFINE_NEAR_METHOD(get_greeting)
+DEFINE_NEAR_METHOD(init)
 DEFINE_NEAR_METHOD(set_greeting)
+DEFINE_NEAR_METHOD(visitMaze)

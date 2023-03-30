@@ -74,6 +74,11 @@ export function pathLengthCalculator({hashUrlStr}:{hashUrlStr:string}) {
     return {from: fromP, to: toP, len: pathLength};
 }
 
+/**
+ * 
+ * @param seedString seedString
+ * @returns string hex
+ */        
 export function hashUrlMaker({seedString}:{seedString:string}):string {
   let hashStr = crypto.createHash("sha256").update(seedString).digest("hex");
 

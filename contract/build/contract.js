@@ -575,6 +575,14 @@ function log(...params) {
   }, ""));
 }
 /**
+ * Returns the account ID of the account that signed the transaction.
+ * Can only be called in a call or initialize function.
+ */
+function signerAccountId() {
+  env.signer_account_id(0);
+  return str(env.read_register(0));
+}
+/**
  * Returns the public key of the account that signed the transaction.
  * Can only be called in a call or initialize function.
  */
@@ -799,6 +807,17 @@ function promiseReturn(promiseIndex) {
   env.promise_return(promiseIndex);
 }
 
+/**
+ * Tells the SDK to use this function as the initialization function of the contract.
+ *
+ * @param _empty - An empty object.
+ */
+function initialize(_empty) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return function (_target, _key, _descriptor
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  ) {};
+}
 /**
  * Tells the SDK to expose this function as a view function.
  *
@@ -1357,14 +1376,20 @@ class NearPromise {
   }
 }
 
-var _dec, _dec2, _dec3, _dec4, _class, _class2;
-let HelloNear = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec4 = call({}), _dec(_class = (_class2 = class HelloNear {
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _class, _class2;
+let QrMaze = (_dec = NearBindgen({}), _dec2 = initialize(), _dec3 = view(), _dec4 = call({}), _dec5 = call({}), _dec6 = call({}), _dec7 = view(), _dec8 = call({}), _dec(_class = (_class2 = class QrMaze {
   message = "Hello";
-  // This method is read-only and can be called for free
+  addr2Nick = new Map();
+  user = new Map(); // nickname -> Maze
+
+  init({
+    message
+  }) {
+    this.message = message;
+  }
   get_greeting() {
     return this.message;
   }
-  // This method changes the state, for which it cost gas
   set_greeting({
     message
   }) {
@@ -1379,48 +1404,120 @@ let HelloNear = (_dec = NearBindgen({}), _dec2 = view(), _dec3 = call({}), _dec4
     let pKey = new PublicKey(signerAccountPk());
     return NearPromise.new(subaccountId).createAccount().addFullAccessKey(pKey).transfer(BigInt(250_000_000_000_000_000));
   }
-}, (_applyDecoratedDescriptor(_class2.prototype, "get_greeting", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "get_greeting"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "set_greeting", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "set_greeting"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "createSubAcnt", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "createSubAcnt"), _class2.prototype)), _class2)) || _class);
-function createSubAcnt() {
-  const _state = HelloNear._getState();
-  if (!_state && HelloNear._requireInit()) {
+  createNickname({
+    _nickname
+  }) {
+    this.addr2Nick.set(signerAccountId(), _nickname);
+  }
+  getNickbyAddr({
+    _address
+  }) {
+    let nick = this.addr2Nick.get(_address);
+    log(`Nickname : ${nick}`);
+    return nick;
+  }
+  visitMaze({
+    _address
+  }) {
+    let maze = this.user.get(this.getNickbyAddr(_address));
+    maze.visitorList.push(signerAccountId());
+    log(`==Visitors==visitMaze()`);
+    log(this.user.get(this.getNickbyAddr(_address)).visitorList);
+  }
+}, (_applyDecoratedDescriptor(_class2.prototype, "init", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "init"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_greeting", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "get_greeting"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "set_greeting", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "set_greeting"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "createSubAcnt", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "createSubAcnt"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "createNickname", [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, "createNickname"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "getNickbyAddr", [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, "getNickbyAddr"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "visitMaze", [_dec8], Object.getOwnPropertyDescriptor(_class2.prototype, "visitMaze"), _class2.prototype)), _class2)) || _class);
+function visitMaze() {
+  const _state = QrMaze._getState();
+  if (!_state && QrMaze._requireInit()) {
     throw new Error("Contract must be initialized");
   }
-  const _contract = HelloNear._create();
+  const _contract = QrMaze._create();
   if (_state) {
-    HelloNear._reconstruct(_contract, _state);
+    QrMaze._reconstruct(_contract, _state);
   }
-  const _args = HelloNear._getArgs();
+  const _args = QrMaze._getArgs();
+  const _result = _contract.visitMaze(_args);
+  QrMaze._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
+}
+function getNickbyAddr() {
+  const _state = QrMaze._getState();
+  if (!_state && QrMaze._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = QrMaze._create();
+  if (_state) {
+    QrMaze._reconstruct(_contract, _state);
+  }
+  const _args = QrMaze._getArgs();
+  const _result = _contract.getNickbyAddr(_args);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
+}
+function createNickname() {
+  const _state = QrMaze._getState();
+  if (!_state && QrMaze._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = QrMaze._create();
+  if (_state) {
+    QrMaze._reconstruct(_contract, _state);
+  }
+  const _args = QrMaze._getArgs();
+  const _result = _contract.createNickname(_args);
+  QrMaze._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
+}
+function createSubAcnt() {
+  const _state = QrMaze._getState();
+  if (!_state && QrMaze._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = QrMaze._create();
+  if (_state) {
+    QrMaze._reconstruct(_contract, _state);
+  }
+  const _args = QrMaze._getArgs();
   const _result = _contract.createSubAcnt(_args);
-  HelloNear._saveToStorage(_contract);
-  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(HelloNear._serialize(_result, true));
+  QrMaze._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
 }
 function set_greeting() {
-  const _state = HelloNear._getState();
-  if (!_state && HelloNear._requireInit()) {
+  const _state = QrMaze._getState();
+  if (!_state && QrMaze._requireInit()) {
     throw new Error("Contract must be initialized");
   }
-  const _contract = HelloNear._create();
+  const _contract = QrMaze._create();
   if (_state) {
-    HelloNear._reconstruct(_contract, _state);
+    QrMaze._reconstruct(_contract, _state);
   }
-  const _args = HelloNear._getArgs();
+  const _args = QrMaze._getArgs();
   const _result = _contract.set_greeting(_args);
-  HelloNear._saveToStorage(_contract);
-  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(HelloNear._serialize(_result, true));
+  QrMaze._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
 }
 function get_greeting() {
-  const _state = HelloNear._getState();
-  if (!_state && HelloNear._requireInit()) {
+  const _state = QrMaze._getState();
+  if (!_state && QrMaze._requireInit()) {
     throw new Error("Contract must be initialized");
   }
-  const _contract = HelloNear._create();
+  const _contract = QrMaze._create();
   if (_state) {
-    HelloNear._reconstruct(_contract, _state);
+    QrMaze._reconstruct(_contract, _state);
   }
-  const _args = HelloNear._getArgs();
+  const _args = QrMaze._getArgs();
   const _result = _contract.get_greeting(_args);
-  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(HelloNear._serialize(_result, true));
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
+}
+function init() {
+  const _state = QrMaze._getState();
+  if (_state) {
+    throw new Error("Contract already initialized");
+  }
+  const _contract = QrMaze._create();
+  const _args = QrMaze._getArgs();
+  const _result = _contract.init(_args);
+  QrMaze._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(QrMaze._serialize(_result, true));
 }
 
-export { createSubAcnt, get_greeting, set_greeting };
-//# sourceMappingURL=hello_near.js.map
+export { createNickname, createSubAcnt, getNickbyAddr, get_greeting, init, set_greeting, visitMaze };
+//# sourceMappingURL=contract.js.map
