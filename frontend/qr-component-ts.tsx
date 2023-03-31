@@ -1,9 +1,9 @@
 import React from 'react';
 import QRCode from "qrcode";
 import { hashUrlMaker, pathLengthCalculator } from './qrmap';
-import { Flex } from '@chakra-ui/react';
+import { Button, Flex } from '@chakra-ui/react';
 
-export function QrcodeView({seedString}:{seedString:string}) {
+export function QrcodeView({seedString, contractId, wallet}) {
   const [toDataURL, setToDataURL] = React.useState<string>();
   const [result, setResult] = React.useState<{from:number[], to:number[], len:number}>();
   // const [toDataURL, setToDataURL] = React.useState();
@@ -21,7 +21,7 @@ export function QrcodeView({seedString}:{seedString:string}) {
     width: 1,
     color: { dark: "#00000000", light: "#000000ff" },
   };
-  React.useEffect(()=>{
+  React.useEffect(() => {
     if(seedString) {
       urlString = hashUrlMaker({seedString});
       if(toDataURL!==urlString) setResult(pathLengthCalculator({hashUrlStr: urlString}));
@@ -31,18 +31,33 @@ export function QrcodeView({seedString}:{seedString:string}) {
       setToDataURL(url);
     });
   },[seedString])
+
+  function createMaze(){
+    wallet.callMethod(
+      { 
+        contractId: contractId, 
+        method: "createNickname", 
+        args: { 
+          _nickname : seedString
+        }
+      }
+    );
+  }
   
   return (
     <Flex direction={"column"}>
       <img src={toDataURL}/>
       <PathLength result={result}/>
+      <Button color={'blackAlpha.800'} onClick={()=>{
+        createMaze()
+        }}>Create Maze</Button>
     </Flex>
   )
 }
 
 export function PathLength({result}){
   if(result){
-    return(
+    return (
       <>
         <p>(ROW, COL)</p>
         <div>
@@ -56,8 +71,8 @@ export function PathLength({result}){
         </div>
       </>
     )
-  } else{
-    return(
+  } else {
+    return (
       <p>NO PATH</p>
     )
   }
